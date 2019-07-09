@@ -1,0 +1,62 @@
+### Salsabila Basalamah
+### Metode Hirarki Cluster
+### Menggunakan Data : Data Global Slavery Index
+
+### Install package dan aktifkan
+library(cluster)
+library(dendextend)
+library(factoextra)
+
+### Memanggil data Global Slavery Index
+data=read.csv("...\\Global Slavery Index.csv")
+View(data)
+
+### Menampilkan persebaran data Global Slavery Index dengan plot
+plot(data, col="pink",lwd=2)
+text(data,rownames(data))
+
+### Menampilkan plot claster dengan metode-metode
+hasil<-hclust(dist(data),"single")
+## complate adalah jarak terjauh yang membentuk cluster
+hasil<-hclust(dist(data),"complete")
+## average adalah rata2 jarak anatar cluster yang membentuk cluster
+hasil<-hclust(dist(data),"average")
+plot(hasil, col="green")
+str(hasil)
+hasil$height
+## urutan pengelompokan dari pertama
+hasil$merge
+
+## Membuat menjadi 3 kelompok
+rect.hclust(hasil,k=3,border=2:3)
+hasil.cut<-cutree(hasil,3)
+table(hasil.cut)
+
+## mengetahu anggota kelompok
+rownames(data)[hasil.cut==1]
+rownames(data)[hasil.cut==2]
+rownames(data\)[hasil.cut==3]
+
+
+## berapa jumlah cluster yang optimal menggunakan dengan metode LBOOK
+fviz_nbclust(data, FUN=hcut,method = "wss") # wss nilai variansi masing2 cluster
+fviz_nbclust(data, FUN=hcut,method = "silhouette",hc_method="complete") # wss nilai variansi masing2 cluster
+##hasilnya k=3 dengan nilai tertinggi yang bagian x, k=3
+data.dist<-dist(data, method = "euclidean")
+hc1<-hclust(data.dist, method = "complete")
+hc2<-hclust(data.dist, method = "average")
+## bisa metodenya complate, dan ward.D2
+
+dend1<-as.dendrogram(hc1)
+dend2<-as.dendrogram(hc2)
+dend_list<-dendlist(dend1,dend2)
+
+## bagi tempat plot menjadi 2
+par(mfrow=c(1,2))
+plot(hc1, hang = -1)
+plot(hc2, hang = -1)
+## melihat lebih jelas perbedaan berdasrakan terbelitnya atau jalurnya
+tanglegram(dend1, dend2)
+##lihat nilai terbelitnya
+tanglegram(dend1, dend2, main = paste("entanglemet=", round(entanglement(dend_list),2)))
+
